@@ -4,13 +4,15 @@
 #include <vector>
 #include <stdint.h>
 
-const size_t      kStringsCount = 100;
+constexpr const size_t      kStringsCount = 1;
 const std::string kStringValue  = "shgfkghsdfjhgsfjhfgjhfgjsffghgsfdhgsfdfkdjhfioukjhkfdljgdfkgvjafdhasgdfwurtjkghfsdjkfg";
 
 const std::vector<int64_t> kIntegers = {
     -7363025924956902506, 433747491,            -1063289711,
     -3099617426797642053, -10,                  -28373,
-    56,                   -26152,               11187,
+    56,                   -26152,               11187
+};
+#if 0
     16848,                52,                   21,
     -1507434656,          -40,                  1817515017,
     1733359561,           34,                   -5848022735330443435,
@@ -343,5 +345,6 @@ const std::vector<int64_t> kIntegers = {
     -10440,               -33,                  -18991,
     -102
 };
+#endif
 
 #endif

@@ -406,6 +406,64 @@ avro_serialization_test(size_t iterations)
 }
 
 void
+std_serialization_test(size_t iterations)
+{
+
+    struct Msg
+    {
+        std::string strs[kStringsCount];
+        int64_t     ints[9];
+
+    };
+    Msg r1;
+
+#if 0
+    for (size_t i = 0; i < 100; i++) {
+        r1.strs[i] = kStringValue;
+    }
+    for (size_t i = 0; i < 1000; i++) {
+        r1.strs[i] = kIntegers[i];
+    }
+
+    auto p = reinterpret_cast<char*>(&r1));
+    auto sz = sizeof(r1);
+    std::vector<char> buf(p, p + sz);
+
+    auto r2 = GetRecord(buf.data());
+    if (r2->strings()->size() != kStringsCount || r2->ids()->size() != kIntegers.size()) {
+        throw std::logic_error("flatbuffer's case: deserialization failed");
+    }
+
+    std::cout << "flatbuffers: size = " << builder.GetSize() << " bytes" << std::endl;
+
+    //builder.ReleaseBufferPointer();
+
+#endif
+    std::cout << "std: size = " << sizeof(Msg) << " bytes" << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    for (size_t i = 0; i < iterations; i++) {
+        Msg r1;
+
+        for (size_t i = 0; i < kStringsCount; i++) {
+            r1.strs[i] = kStringValue;
+        }
+        for (size_t i = 0; i < 9; i++) {
+            r1.ints[i] = kIntegers[i];
+        }
+
+        //auto p = reinterpret_cast<char*>(&r1);
+        //auto sz = sizeof(r1);
+        //Msg r2;
+        //r2 = r1;
+
+    }
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+
+    std::cout << "std: time = " << duration << " milliseconds" << std::endl << std::endl;
+}
+
+void
 flatbuffers_serialization_test(size_t iterations)
 {
     using namespace flatbuffers_test;
@@ -419,6 +477,7 @@ flatbuffers_serialization_test(size_t iterations)
     }
 
     auto ids_vec = builder.CreateVector(kIntegers);
+    std::cout << "number of ints = " << kIntegers.size() << std::endl;
     auto strings_vec = builder.CreateVector(strings);
     auto r1 = CreateRecord(builder, ids_vec, strings_vec);
 
@@ -435,7 +494,7 @@ flatbuffers_serialization_test(size_t iterations)
 
     std::cout << "flatbuffers: size = " << builder.GetSize() << " bytes" << std::endl;
 
-    builder.ReleaseBufferPointer();
+    //builder.ReleaseBufferPointer();
 
     auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < iterations; i++) {
@@ -525,7 +584,7 @@ main(int argc, char** argv)
 
     if (argc < 2) {
         std::cout << "usage: " << argv[0]
-                  << " N [thrift-binary thrift-compact protobuf boost msgpack cereal avro capnproto flatbuffers yas yas-compact]";
+                  << " N [std thrift-binary thrift-compact protobuf boost msgpack cereal avro capnproto flatbuffers yas yas-compact]";
         std::cout << std::endl << std::endl;
         std::cout << "arguments: " << std::endl;
         std::cout << " N  -- number of iterations" << std::endl << std::endl;
@@ -585,6 +644,10 @@ main(int argc, char** argv)
 
         if (names.empty() || names.find("avro") != names.end()) {
             avro_serialization_test(iterations);
+        }
+
+        if (names.empty() || names.find("std") != names.end()) {
+            std_serialization_test(iterations);
         }
 
         if (names.empty() || names.find("flatbuffers") != names.end()) {
